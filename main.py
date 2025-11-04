@@ -4,10 +4,24 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from gradio_client import Client
 import asyncio
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# Your Hugging Face Space
+# Allow requests from frontend
+origins = [
+    "http://localhost:3000",  # React dev server
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # allow requests from these origins
+    allow_credentials=True,
+    allow_methods=["*"],     # allow all HTTP methods
+    allow_headers=["*"],     # allow all headers
+)
+
+# Hugging Face Space
 HF_SPACE = "Andrewwinn/senior-project-demo"
 
 class TextInput(BaseModel):
@@ -15,7 +29,7 @@ class TextInput(BaseModel):
 
 class SentimentResponse(BaseModel):
     input: str
-    prediction: dict  # Adjust based on what your model returns
+    prediction: dict  # Adjust based on what the model returns
 
 @app.post("/analyze")
 async def analyze(input_data: TextInput):
